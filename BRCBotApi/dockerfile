@@ -1,12 +1,34 @@
-# Build stage
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-WORKDIR /app
+# docker buildx build --platform linux/arm64 -t blakemanternach/brcbotapi:latest --push .
+
+# pi: docker pull blakemanternach/brcbotapi:latest
+# docker-compose -f docker-compose.prod.yml up -d
+
+# Build stage (this stage will build for multiple platforms)
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG TARGETARCH
+WORKDIR /source
+
+# Copy the project file and restore dependencies as distinct layers
+COPY ./*.csproj ./ 
+RUN dotnet restore
+
+# Copy the rest of the application source code
 COPY . ./
-RUN dotnet publish -c Release -o out
 
-# Runtime stage
+# Set the architecture explicitly when publishing (for cross-platform compatibility)
+RUN echo "Target architecture: $TARGETARCH" && \
+    dotnet publish -c Release -o /app 
+
+# Runtime stage (final image)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0
-WORKDIR /app
-COPY --from=build /app/out .
 
+# Set up the working directory and expose the port
+WORKDIR /app
+EXPOSE 8080
+
+# Copy the published app from the build stage
+COPY --from=build /app ./
+
+# Set the user and the entry point for the container
+USER 1000
 ENTRYPOINT ["dotnet", "BRCBotApi.dll"]

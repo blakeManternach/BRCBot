@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   brcbot:
-    image: yourdockerhubuser/brcbot:latest # Replace with your image name from Docker Hub
+    image: blakemanternach/brcbot:latest # Replace with your image name from Docker Hub
     container_name: brcbot
     ports:
       - "80:8080" # Maps host port 80 to container port 8080
