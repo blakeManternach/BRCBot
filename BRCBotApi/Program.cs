@@ -5,14 +5,24 @@ using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
+DotNetEnv.Env.Load();
+var GROUPME_BOT_TOKEN = Environment.GetEnvironmentVariable("GROUPME_BOT_TOKEN");
+
 // Map a POST route for receiving GroupMe callback data
 app.MapPost("/GroupMePost", async (HttpContext context) =>
 {
     // Read the request body and deserialize it to the GroupMeMessage object
     var groupMeMessage = await context.Request.ReadFromJsonAsync<GroupMeMessage>();
 
+    string json = JsonSerializer.Serialize(groupMeMessage, new JsonSerializerOptions
+    {
+        WriteIndented = true
+    });
+
+    Console.WriteLine(json);
+
     // Here you can work with the deserialized groupMeMessage object
-    if (groupMeMessage != null)
+    if (groupMeMessage != null && groupMeMessage.SenderId != GROUPME_BOT_TOKEN)
     {
         var message = groupMeMessage.Text.ToLower();
         if (message.Contains("@brcbot"))
@@ -35,9 +45,8 @@ app.Run();
 async Task SendGroupMeMessage(string message)
 {
     var url = "https://api.groupme.com/v3/bots/post"; // Replace with your API URL
-    var token = Environment.GetEnvironmentVariable("GROUPME_BOT_TOKEN");
 
-    if (String.IsNullOrEmpty(token))
+    if (String.IsNullOrEmpty(GROUPME_BOT_TOKEN))
     {
         throw new Exception("Bot token not found or set");
     }
