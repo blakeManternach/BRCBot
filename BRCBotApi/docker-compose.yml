@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  brcbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: brcbot
+    ports:
+      - "5000:8080" # Maps host port 5000 to container port 80
+    environment:
+      - GROUPME_BOT_TOKEN=${GROUPME_BOT_TOKEN}
+    restart: unless-stopped
