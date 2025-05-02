@@ -22,7 +22,7 @@ app.MapPost("/GroupMePost", async (HttpContext context) =>
     Console.WriteLine(json);
 
     // Here you can work with the deserialized groupMeMessage object
-    if (groupMeMessage != null && groupMeMessage.SenderId != GROUPME_BOT_TOKEN)
+    if (groupMeMessage != null && groupMeMessage.SenderType.ToLower().Trim() != "bot")
     {
         var message = groupMeMessage.Text.ToLower();
         if (message.Contains("@brcbot"))
