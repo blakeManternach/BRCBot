@@ -2,10 +2,10 @@ version: '3.8'
 
 services:
   brcbot:
-    image: blakemanternach/brcbotapi:latest # Replace with your image name from Docker Hub
+    image: blakemanternach/brcbotapi:latest 
     container_name: brcbot
     ports:
-      - "80:8080" # Maps host port 80 to container port 8080
+      - "80:8080"
     environment:
-      - GROUPME_BOT_TOKEN=${GROUPME_BOT_TOKEN} # Ensure you have a different .env file or use env variables for prod
+      - GROUPME_BOT_TOKEN=${GROUPME_BOT_TOKEN}
     restart: unless-stopped
