@@ -1,5 +1,11 @@
 *.env
 
+# Ignore everything in data/
+BRCBotAPI/data/*
+
+# But keep the directory itself
+!BRCBotAPI/data/.gitkeep
+
 *.swp
 *.*~
 project.lock.json

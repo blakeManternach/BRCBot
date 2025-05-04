@@ -1,17 +1,34 @@
 using BRCBotApi;
-using System.Text;
+using BRCBotApi.Models;
+using BRCBotApi.Services;
+using BRCBotApi.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
-
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
 
 // Only for local non-docker environment
 DotNetEnv.Env.Load("test.env");
+var CONNECTION_STRING = Environment.GetEnvironmentVariable("DB_PATH");
 
-var GROUPME_BOT_TOKEN = Environment.GetEnvironmentVariable("GROUPME_BOT_TOKEN");
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<BRCDbContext>(options =>
+    options.UseSqlite(CONNECTION_STRING));
+builder.Services.AddScoped<IBotService, BotService>();
+builder.Services.AddScoped<IGroupMeService, GroupMeService>();
+builder.Services.AddScoped<IRollService, RollService>();
+builder.Services.AddScoped<IUsersService, UsersService>();
+
+var app = builder.Build();
+
+// Apply Migrations on startup if they exist
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<BRCDbContext>();
+    db.Database.Migrate();
+}
 
 // Map a POST route for receiving GroupMe callback data
-app.MapPost("/GroupMePost", async (HttpContext context) =>
+app.MapPost("/GroupMePost", async (HttpContext context, IBotService botService, IGroupMeService groupMeService) =>
 {
     // Read the request body and deserialize it to the GroupMeMessage object
     var groupMeMessage = await context.Request.ReadFromJsonAsync<GroupMeMessage>();
@@ -21,51 +38,17 @@ app.MapPost("/GroupMePost", async (HttpContext context) =>
         WriteIndented = true
     });
 
+    // TODO: may want to take this out or add a debug flag to env file
     Console.WriteLine(json);
 
-    // Here you can work with the deserialized groupMeMessage object
     if (groupMeMessage != null && groupMeMessage.SenderType.ToLower().Trim() != "bot")
     {
-        var message = groupMeMessage.Text.ToLower();
-        if (message.Contains("@brcbot"))
+        if (groupMeMessage.Text.ToLower().Contains("@brcbot"))
         {
-            var messageParts = message.Split(" ", 3);
-            var command = messageParts.Length > 1 ? messageParts[1] : null;
-            var text = messageParts.Length > 2 ? messageParts[2] : null;
-
-            string response = messageParts[0] == "@brcbot" ? 
-                BRCBot.InteractWithMessage(command, text, groupMeMessage.Name) :
-                "Usage: @brcbot {command} {text}\n" + 
-                "Example: @brcbot roll d20";
-
-            await SendGroupMeMessage(response);
+            var response = await botService.ProcessGroupMeMessageAsync(groupMeMessage);
+            await groupMeService.SendGroupMeMessage(response);
         }
     }
 });
 
 app.Run();
-
-async Task SendGroupMeMessage(string message)
-{
-    var url = "https://api.groupme.com/v3/bots/post"; // Replace with your API URL
-
-    if (String.IsNullOrEmpty(GROUPME_BOT_TOKEN))
-    {
-        throw new Exception("Bot token not found or set");
-    }
-
-    var data = new { bot_id = GROUPME_BOT_TOKEN, text = message }; 
-    var jsonData = JsonSerializer.Serialize(data);
-
-    var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-
-    using (var httpClient = new HttpClient())
-    {
-        var response = await httpClient.PostAsync(url, content);
-        if (!response.IsSuccessStatusCode)
-        {
-            var responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("Failed to send groupme message: " + responseBody);
-        }
-    }
-}

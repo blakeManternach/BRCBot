@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace BRCBotApi
+namespace BRCBotApi.Models
 {
     [Serializable]
     public class GroupMeMessage
