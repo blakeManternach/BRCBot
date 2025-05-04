@@ -5,7 +5,9 @@ using System.Text.Json;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-DotNetEnv.Env.Load();
+// Only for local non-docker environment
+DotNetEnv.Env.Load("test.env");
+
 var GROUPME_BOT_TOKEN = Environment.GetEnvironmentVariable("GROUPME_BOT_TOKEN");
 
 // Map a POST route for receiving GroupMe callback data
