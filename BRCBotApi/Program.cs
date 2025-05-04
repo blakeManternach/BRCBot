@@ -32,8 +32,9 @@ app.MapPost("/GroupMePost", async (HttpContext context) =>
             var text = messageParts.Length > 2 ? messageParts[2] : null;
 
             string response = messageParts[0] == "@brcbot" ? 
-                BRCBot.InteractWithMessage(command, text) :
-                "Message must be in format: @brcbot {command} {text}.  (e.g. @brcbot roll d20)";
+                BRCBot.InteractWithMessage(command, text, groupMeMessage.Name) :
+                "Usage: @brcbot {command} {text}\n" + 
+                "Example: @brcbot roll d20";
 
             await SendGroupMeMessage(response);
         }
@@ -51,7 +52,7 @@ async Task SendGroupMeMessage(string message)
         throw new Exception("Bot token not found or set");
     }
 
-    var data = new { bot_id = "4c91f451b08fcce91bbef2b40e", text = message }; 
+    var data = new { bot_id = GROUPME_BOT_TOKEN, text = message }; 
     var jsonData = JsonSerializer.Serialize(data);
 
     var content = new StringContent(jsonData, Encoding.UTF8, "application/json");

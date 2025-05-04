@@ -1,0 +1,22 @@
+Storage
+	TABLES
+		USERS
+			USERID
+			GROUPMEUSERID
+			NAME
+		ROLLS
+			ROLLID
+			DICE SIDES
+			RESULT
+			USERID (FK)
+			DATETIME
+				
+	DB SYSTEM
+		SQL LITE
+			db will be in a folder in the repo (data/brcbot.db)
+		Entity Framework
+			Migrations will control the setup of the db
+			Migration will apply on startup of the app
+
+
+
