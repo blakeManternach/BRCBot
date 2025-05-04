@@ -38,7 +38,7 @@ namespace BRCBotApi
                 if (range > 0)
                 {
                     var rand = new Random();
-                    var result = rand.Next(range + 1).ToString();
+                    var result = rand.Next(1, range + 1).ToString();
                     return $"🎲 {userName} rolls a d{range}...\n" +
                            $"🎯 Result: {result}";
                 }
