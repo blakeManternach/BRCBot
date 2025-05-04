@@ -1,13 +1,11 @@
 version: '3.8'
 
 services:
-  brcbot:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  brcbottest:
+    image: blakemanternach/brcbotapi:latest
     env_file:
         - test.env
-    container_name: brcbot
+    container_name: brcbottest
     ports:
       - "5000:8080" # Maps host port 5000 to container port 80
     restart: unless-stopped
