@@ -10,7 +10,6 @@ namespace BRCBotApi.Services
 
         public GroupMeService()
         {
-            //DotNetEnv.Env.Load("test.env");
             GROUPME_BOT_TOKEN = Environment.GetEnvironmentVariable("GROUPME_BOT_TOKEN");
         }
 

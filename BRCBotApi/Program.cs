@@ -1,4 +1,3 @@
-using BRCBotApi;
 using BRCBotApi.Models;
 using BRCBotApi.Services;
 using BRCBotApi.Services.Interfaces;
