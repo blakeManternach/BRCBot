@@ -2,9 +2,11 @@ version: '3.8'
 
 services:
   brcbottest:
-    image: blakemanternach/brcbotapi:latest
+    image: blakemanternach/brcbotapi:v2.0
     env_file:
         - test.env
+    volumes:
+      - ./data:/app/data  # important: persist the DB
     container_name: brcbottest
     ports:
       - "5000:8080" # Maps host port 5000 to container port 80
