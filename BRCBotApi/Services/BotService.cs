@@ -9,11 +9,20 @@ namespace BRCBotApi.Services
     {
         private readonly IUsersService _usersService;
         private readonly IRollService _rollService;
+        private readonly IGroqService _groqService;
+        private readonly IChatHistoryService _chatHistoryService;
 
-        public BotService(IUsersService usersService, IRollService rollService, BRCDbContext dbContext)
+        public BotService(
+            IUsersService usersService,
+            IRollService rollService,
+            BRCDbContext dbContext,
+            IGroqService groqService,
+            IChatHistoryService chatHistoryService)
         {
             _usersService = usersService;
             _rollService = rollService;
+            _groqService = groqService;
+            _chatHistoryService = chatHistoryService;
         }
 
         public async Task<string> ProcessGroupMeMessageAsync(GroupMeMessage message)
@@ -24,24 +33,24 @@ namespace BRCBotApi.Services
 
             var user = await _usersService.GetOrCreateGroupMeUser(message.Name, message.SenderId);
 
-            if (messageParts[0] != "@brcbot")
-            {
-                return "Usage: @brcbot {command} {text}\n" + 
-                       "Example: @brcbot roll d20";
-            }
-
+            var botResponse = "";
             switch (command?.ToLower())
             {
                 case "roll":
-                    return await RollAsync(text, user);
+                    botResponse = await RollAsync(text, user);
+                    break;
                 case "rollstats":
-                    return await RollStats(text, user);
+                    botResponse = await RollStats(text, user);
+                    break;
                 case "help":
-                    return Help();
+                    botResponse = Help();
+                    break;
                 default:
-                    return "Unce! Unknown command.\n" +
-                           "Type '@brcbot help' for a list of commands.";
+                    botResponse = await GetGroqResponse();
+                    break;
             };
+
+            return botResponse;
         }
 
 
@@ -76,6 +85,14 @@ namespace BRCBotApi.Services
                 }
             }
             return defaultText;
+        }
+
+        private async Task<string> GetGroqResponse()
+        { 
+            var chatHistory = await _chatHistoryService.GetMostRecentMessages(10);
+            chatHistory.Reverse();
+            var chatHistoryText = string.Join("\n", chatHistory.Select(x => x.ChatMessageText));
+            return await _groqService.SendGroqRequest(chatHistoryText) ?? "";
         }
     }
 }

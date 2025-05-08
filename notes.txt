@@ -18,5 +18,8 @@ Storage
 			Migrations will control the setup of the db
 			Migration will apply on startup of the app
 
+LLM 
+	Using GROQ
+		MODEL: llama-3.3-70b-versatile
 
 

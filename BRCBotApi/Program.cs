@@ -16,6 +16,8 @@ builder.Services.AddScoped<IBotService, BotService>();
 builder.Services.AddScoped<IGroupMeService, GroupMeService>();
 builder.Services.AddScoped<IRollService, RollService>();
 builder.Services.AddScoped<IUsersService, UsersService>();
+builder.Services.AddScoped<IGroqService, GroqService>();
+builder.Services.AddScoped<IChatHistoryService, ChatHistoryService>();
 
 var app = builder.Build();
 
@@ -27,7 +29,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Map a POST route for receiving GroupMe callback data
-app.MapPost("/GroupMePost", async (HttpContext context, IBotService botService, IGroupMeService groupMeService) =>
+app.MapPost("/GroupMePost", async (HttpContext context, IBotService botService, IGroupMeService groupMeService, IChatHistoryService chatHistoryService) =>
 {
     // Read the request body and deserialize it to the GroupMeMessage object
     var groupMeMessage = await context.Request.ReadFromJsonAsync<GroupMeMessage>();
@@ -42,9 +44,11 @@ app.MapPost("/GroupMePost", async (HttpContext context, IBotService botService, 
 
     if (groupMeMessage != null && groupMeMessage.SenderType.ToLower().Trim() != "bot")
     {
+        await chatHistoryService.SaveChatMessage(int.Parse(groupMeMessage.SenderId), groupMeMessage.Name, groupMeMessage.Text);
         if (groupMeMessage.Text.ToLower().Contains("@brcbot"))
         {
             var response = await botService.ProcessGroupMeMessageAsync(groupMeMessage);
+            await chatHistoryService.SaveBotChatMessage(response);
             await groupMeService.SendGroupMeMessage(response);
         }
     }

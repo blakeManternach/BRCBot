@@ -8,5 +8,6 @@ namespace BRCBotApi.Services
         public BRCDbContext(DbContextOptions options) : base(options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<Roll> Rolls { get; set; }
+        public DbSet<ChatMessageHistory> ChatMessageHistories { get; set; }
     }
 }

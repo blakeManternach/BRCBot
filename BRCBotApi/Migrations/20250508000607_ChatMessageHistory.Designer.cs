@@ -3,6 +3,7 @@ using System;
 using BRCBotApi.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BRCBotApi.Migrations
 {
     [DbContext(typeof(BRCDbContext))]
-    partial class BRCDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250508000607_ChatMessageHistory")]
+    partial class ChatMessageHistory
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
@@ -24,10 +27,6 @@ namespace BRCBotApi.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("ChatMessageHistoryDateTime")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("ChatMessageText")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("UserID")
