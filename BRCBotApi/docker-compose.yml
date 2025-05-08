@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   brcbottest:
-    image: blakemanternach/brcbotapi:v2.0
+    image: blakemanternach/brcbotapi:v2.1
     env_file:
         - test.env
     volumes:
