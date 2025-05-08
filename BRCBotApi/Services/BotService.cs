@@ -58,6 +58,7 @@ namespace BRCBotApi.Services
         {
             return "Available commands:\n" +
                    "🎲 roll — Roll a die (e.g. @brcbot roll d20)\n" +
+                   "🎲 rollstats — get your roll averages (e.g. @brcbot rollstats)\n" +
                    "ℹ️ help — Show this help message (@brcbot help)\n";
         }
         private async Task<string> RollStats(string? text, User user)
